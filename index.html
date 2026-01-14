@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>SHS Lost & Found</title>
+
+<style>
+:root {
+  --green: #0b6623;
+  --gold: #d4af37;
+  --bg: #f4f8f4;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Segoe UI", Arial, sans-serif;
+  background: var(--bg);
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+header {
+  background: var(--green);
+  color: var(--gold);
+  padding: 25px;
+  text-align: center;
+}
+
+nav {
+  background: var(--gold);
+  padding: 12px;
+  text-align: center;
+}
+
+nav a {
+  color: var(--green);
+  margin: 0 15px;
+  text-decoration: none;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+section {
+  display: none;
+  padding: 30px;
+  max-width: 1000px;
+  margin: auto;
+}
+
+section.active {
+  display: block;
+}
+
+h2, h3 {
+  color: var(--green);
+}
+
+/* HOME BACKGROUND IMAGE */
+#home {
+  position: relative;
+  overflow: hidden;
+  z-index: 0;
+  min-width: 80vh;
+}
+#home::before {
+  content: "";
+  position: absolute;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  background: url('https://images.squarespace-cdn.com/content/v1/5b3a7aa9af2096887028f327/1564490206614-JGC5HSKR62OSK3J06FH2/SHS_PATRIOT_SHIELD.png') center/cover no-repeat;
+  opacity: 0.30;
+  z-index: -1;
+}
+
+/* HOME CARDS */
+.cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-top: 30px;
+}
+
+.card {
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  text-align: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 18px rgba(0,0,0,0.2);
+}
+
+.card h3 {
+  margin-bottom: 10px;
+}
+
+/* FORMS */
+form input, form textarea, form button {
+  width: 100%;
+  padding: 10px;
+  margin: 10px 0;
+}
+
+button {
+  background: var(--green);
+  color: var(--gold);
+  border: none;
+  padding: 12px;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.item {
+  background: white;
+  padding: 15px;
+  border-radius: 10px;
+  margin: 15px 5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  flex: 0 1 48%;
+  box-sizing: border-box;
+}
+
+.item img {
+  max-width: 100%;
+  border-radius: 8px;
+  margin-top: 10px;
+}
+
+/* ITEM GRID */
+#itemList, #adminList, #claimList {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+
+/* FOOTER STICKY */
+footer {
+  background: var(--green);
+  color: var(--gold);
+  text-align: center;
+  padding: 15px;
+  margin-top: auto;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+  <h1>SHS Lost & Found</h1>
+  <p>Helping students recover lost items</p>
+</header>
+
+<nav>
+  <a onclick="showSection('home')">Home</a>
+  <a onclick="showSection('submit')">Report an Item</a>
+  <a onclick="showSection('items')">View Items</a>
+  <a onclick="showSection('claim')">Claim</a>
+  <a onclick="showSection('admin')">Admin</a>
+</nav>
+
+<!-- HOME -->
+<section id="home" class="active">
+  <h2>Welcome to the SHS Lost & Found Center</h2>
+  <p>Use the options below to navigate through the system.</p>
+
+  <div class="cards">
+    <div class="card" onclick="showSection('submit')">
+      <h3>Report Lost Item</h3>
+      <p>Submit details and images of items you’ve found.</p>
+    </div>
+    <div class="card" onclick="showSection('items')">
+      <h3>View Found Items</h3>
+      <p>Browse all reported items currently in the system.</p>
+    </div>
+    <div class="card" onclick="showSection('claim')">
+      <h3>Claim an Item</h3>
+      <p>Submit a claim if you believe an item belongs to you.</p>
+    </div>
+    <div class="card" onclick="showSection('admin')">
+      <h3>Admin Panel</h3>
+      <p>Restricted access for staff to manage items & claims.</p>
+    </div>
+  </div>
+</section>
+
+<!-- REPORT FOUND -->
+<section id="submit">
+<h2>Report a Lost Item</h2>
+<form onsubmit="addItem(event)">
+<input id="itemName" placeholder="Item Name" required>
+<textarea id="itemDesc" placeholder="Item Description" required></textarea>
+<input id="itemLocation" placeholder="Room / Location Found" required>
+<input type="date" id="itemDate" required>
+<input type="file" id="itemPhoto" accept="image/*" required>
+<button>Submit Item</button>
+</form>
+</section>
+
+<!-- ITEMS -->
+<section id="items">
+<h2>Found Items</h2>
+<input placeholder="Search items..." onkeyup="searchItems(this.value)">
+<div id="itemList"></div>
+</section>
+
+<!-- CLAIM -->
+<section id="claim">
+<h2>Claim an Item</h2>
+<form onsubmit="submitClaim(event)">
+<input id="claimName" placeholder="Your Name" required>
+<input id="claimEmail" placeholder="Your Email" required>
+<input id="claimItem" placeholder="Item Name" required>
+<textarea id="claimReason" placeholder="Describe item to prove ownership" required></textarea>
+<button>Submit Claim</button>
+</form>
+</section>
+
+<!-- ADMIN -->
+<section id="admin">
+<h2>Admin Login</h2>
+<div id="adminLogin">
+<input type="password" id="adminPass" placeholder="Enter Admin Passcode">
+<button onclick="checkPasscode()">Login</button>
+<p id="adminError" style="color:red;"></p>
+</div>
+
+
+<div id="adminPanel" style="display:none;">
+<h3>Manage Items</h3>
+<div id="adminList"></div>
+
+<h3>Claim Reports</h3>
+<div id="claimList"></div>
+</div>
+</section>
+
+<footer>
+Lost & Found Center – Website Coding & Development
+</footer>
+
+<script>
+const ADMIN_PASSCODE = "SHS2026";
+let items = JSON.parse(localStorage.getItem("shsItems")) || [];
+let claims = JSON.parse(localStorage.getItem("shsClaims")) || [];
+
+function save() {
+  localStorage.setItem("shsItems", JSON.stringify(items));
+  localStorage.setItem("shsClaims", JSON.stringify(claims));
+}
+
+function showSection(id) {
+  document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+
+function addItem(e) {
+  e.preventDefault();
+  const reader = new FileReader();
+  reader.onload = () => {
+    items.push({
+      name: itemName.value,
+      desc: itemDesc.value,
+      location: itemLocation.value,
+      date: itemDate.value,
+      image: reader.result
+    });
+    save();
+    renderItems();
+    alert("Item submitted!");
+    e.target.reset();
+  };
+  reader.readAsDataURL(itemPhoto.files[0]);
+}
+
+function renderItems() {
+  itemList.innerHTML = "";
+  items.forEach(i => {
+    itemList.innerHTML += `
+    <div class="item">
+      <strong>${i.name}</strong>
+      <p>${i.desc}</p>
+      <p><b>Location:</b> ${i.location}</p>
+      <p><b>Date:</b> ${i.date}</p>
+      <img src="${i.image}">
+    </div>`;
+  });
+}
+
+function searchItems(q) {
+  itemList.innerHTML = "";
+  items.filter(i => i.name.toLowerCase().includes(q.toLowerCase()))
+    .forEach(i => itemList.innerHTML += `
+    <div class="item"><strong>${i.name}</strong><p>${i.desc}</p></div>`);
+}
+
+function submitClaim(e) {
+  e.preventDefault();
+  claims.push({
+    name: claimName.value,
+    email: claimEmail.value,
+    item: claimItem.value,
+    reason: claimReason.value
+  });
+  save();
+  alert("Claim submitted.");
+  e.target.reset();
+}
+
+function checkPasscode() {
+  if (adminPass.value === ADMIN_PASSCODE) {
+    adminLogin.style.display = "none";
+    adminPanel.style.display = "block";
+    renderAdmin();
+  } else {
+    adminError.textContent = "Incorrect passcode.";
+  }
+}
+
+// SMART MATCH FUNCTION
+function renderAdmin() {
+  adminList.innerHTML = "";
+  claimList.innerHTML = "";
+
+  // Items
+  items.forEach((i, idx) => {
+    adminList.innerHTML += `
+    <div class="item">
+      <strong>${i.name}</strong>
+      <p>${i.desc}</p>
+      <p><b>Location:</b> ${i.location}</p>
+      <p><b>Date:</b> ${i.date}</p>
+      <img src="${i.image}">
+      <button onclick="removeItem(${idx})">Remove</button>
+    </div>`;
+  });
+
+  // Claims
+  claims.forEach((c, idx) => {
+    let matchedItem = null;
+    const claimWords = c.reason.toLowerCase().split(/\s+/);
+
+    for (const item of items) {
+      const itemText = (item.name + " " + item.desc + " " + item.location).toLowerCase();
+      if (claimWords.some(word => word.length > 2 && itemText.includes(word))) {
+        matchedItem = item;
+        break;
+      }
+    }
+
+    let itemHTML = matchedItem ? `
+      <p>${matchedItem.desc}</p>
+      <p><b>Location:</b> ${matchedItem.location}</p>
+      <p><b>Date:</b> ${matchedItem.date}</p>
+      <img src="${matchedItem.image}">` : `<p>Item info not found yet.</p>`;
+
+    claimList.innerHTML += `
+    <div class="item">
+      <b>${c.name}</b> (${c.email}) claims <b>${c.item}</b>
+      <p>${c.reason}</p>
+      ${itemHTML}
+      <button onclick="removeClaim(${idx})">Remove</button>
+    </div>`;
+  });
+}
+
+function removeItem(i) {
+  items.splice(i,1);
+  save();
+  renderItems();
+  renderAdmin();
+}
+
+function removeClaim(i) {
+  claims.splice(i,1);
+  save();
+  renderAdmin();
+}
+
+renderItems();
+</script>
+
+</body>
+</html>
