@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=2.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHS Lost & Found</title>
 
 <!-- Google Fonts for modern look -->
@@ -154,17 +154,18 @@ footer {
   min-height: 100vh;
   padding: 20px;
 }
-#home::before {
+body::before {
   content: "";
-  position: absolute;
+  position: fixed;   
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
   background: url('https://images.squarespace-cdn.com/content/v1/5b3a7aa9af2096887028f327/1564490206614-JGC5HSKR62OSK3J06FH2/SHS_PATRIOT_SHIELD.png') center/cover no-repeat;
   opacity: 0.25;
-  z-index: -10;
+  z-index: -1;
 }
+
 
 </style>
 </head>
@@ -391,4 +392,3 @@ renderItems();
 
 </body>
 </html>
-
