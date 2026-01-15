@@ -14,7 +14,7 @@
 }
 
 html, body {
-  margin: 2 var(--black);
+  margin: 0;
   padding: 0;
   height: 100%;
   font-family: "Segoe UI", Arial, sans-serif;
@@ -68,7 +68,11 @@ h2, h3 {
   position: relative;
   overflow: hidden;
   z-index: 0;
-  min-width: 80vh;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 #home::before {
   content: "";
@@ -77,7 +81,7 @@ h2, h3 {
   left:0;
   width:100%;
   height:100%;
-  background: url('https://images.squarespace-cdn.com/content/v1/5b3a7aa9af2096887028f327/1564490206614-JGC5HSKR62OSK3J06FH2/SHS_PATRIOT_SHIELD.png') center/cover no-repeat;
+  background: url('https://images.squarespace-cdn.com/content/v1/5b3a7aa9af2096887028f327/1564490206614-JGC5HSKR62OSK3J06FH2/SHS_PATRIOT_SHIELD.png') center / contain no-repeat;
   opacity: 0.30;
   z-index: -1;
 }
@@ -174,11 +178,9 @@ footer {
   <a onclick="showSection('admin')">Admin</a>
 </nav>
 
-<!-- HOME -->
 <section id="home" class="active">
   <h2>Welcome to the SHS Lost & Found Center</h2>
   <p>Use the options below to navigate through the system.</p>
-
   <div class="cards">
     <div class="card" onclick="showSection('submit')">
       <h3>Report Lost Item</h3>
@@ -199,7 +201,6 @@ footer {
   </div>
 </section>
 
-<!-- REPORT FOUND -->
 <section id="submit">
 <h2>Report a Lost Item</h2>
 <form onsubmit="addItem(event)">
@@ -212,14 +213,12 @@ footer {
 </form>
 </section>
 
-<!-- ITEMS -->
 <section id="items">
 <h2>Found Items</h2>
 <input placeholder="Search items..." onkeyup="searchItems(this.value)">
 <div id="itemList"></div>
 </section>
 
-<!-- CLAIM -->
 <section id="claim">
 <h2>Claim an Item</h2>
 <form onsubmit="submitClaim(event)">
@@ -231,7 +230,6 @@ footer {
 </form>
 </section>
 
-<!-- ADMIN -->
 <section id="admin">
 <h2>Admin Login</h2>
 <div id="adminLogin">
@@ -239,12 +237,9 @@ footer {
 <button onclick="checkPasscode()">Login</button>
 <p id="adminError" style="color:red;"></p>
 </div>
-
-
 <div id="adminPanel" style="display:none;">
 <h3>Manage Items</h3>
 <div id="adminList"></div>
-
 <h3>Claim Reports</h3>
 <div id="claimList"></div>
 </div>
@@ -256,148 +251,156 @@ Lost & Found Center – Website Coding & Development
 
 <script>
 const ADMIN_PASSCODE = "SHS2026";
-let items = JSON.parse(localStorage.getItem("shsItems")) || [];
-let claims = JSON.parse(localStorage.getItem("shsClaims")) || [];
-
-function save() {
-  localStorage.setItem("shsItems", JSON.stringify(items));
-  localStorage.setItem("shsClaims", JSON.stringify(claims));
-}
 
 function showSection(id) {
   document.querySelectorAll("section").forEach(s => s.classList.remove("active"));
   document.getElementById(id).classList.add("active");
 }
 
-function addItem(e) {
+// ===== ADD ITEM =====
+function addItem(e){
   e.preventDefault();
   const reader = new FileReader();
   reader.onload = () => {
-    items.push({
+    // Use Firestore instead of localStorage
+    db.collection("items").add({
       name: itemName.value,
       desc: itemDesc.value,
       location: itemLocation.value,
       date: itemDate.value,
       image: reader.result
+    }).then(()=>{ 
+      alert("Item submitted!"); 
+      e.target.reset(); 
     });
-    save();
-    renderItems();
-    alert("Item submitted!");
-    e.target.reset();
   };
   reader.readAsDataURL(itemPhoto.files[0]);
 }
 
-function renderItems() {
-  itemList.innerHTML = "";
-  items.forEach(i => {
-    itemList.innerHTML += `
-    <div class="item">
-      <strong>${i.name}</strong>
-      <p>${i.desc}</p>
-      <p><b>Location:</b> ${i.location}</p>
-      <p><b>Date:</b> ${i.date}</p>
-      <img src="${i.image}">
-    </div>`;
+// ===== RENDER ITEMS LIVE =====
+function renderItems(){
+  const itemListDiv = document.getElementById("itemList");
+  db.collection("items").onSnapshot(snapshot=>{
+    itemListDiv.innerHTML="";
+    snapshot.forEach(doc=>{
+      const i = doc.data();
+      itemListDiv.innerHTML += `
+        <div class="item">
+          <strong>${i.name}</strong>
+          <p>${i.desc}</p>
+          <p><b>Location:</b> ${i.location}</p>
+          <p><b>Date:</b> ${i.date}</p>
+          <img src="${i.image}">
+        </div>`;
+    });
   });
 }
 
-function searchItems(q) {
-  itemList.innerHTML = "";
-  items.filter(i => i.name.toLowerCase().includes(q.toLowerCase()))
-    .forEach(i => itemList.innerHTML += `
-    <div class="item"><strong>${i.name}</strong><p>${i.desc}</p></div>`);
+// ===== SEARCH ITEMS =====
+function searchItems(q){
+  const itemListDiv = document.getElementById("itemList");
+  db.collection("items").get().then(snapshot=>{
+    itemListDiv.innerHTML="";
+    snapshot.forEach(doc=>{
+      const i = doc.data();
+      if(i.name.toLowerCase().includes(q.toLowerCase())){
+        itemListDiv.innerHTML += `
+        <div class="item">
+          <strong>${i.name}</strong>
+          <p>${i.desc}</p>
+        </div>`;
+      }
+    });
+  });
 }
 
-function submitClaim(e) {
+// ===== CLAIM ITEM =====
+function submitClaim(e){
   e.preventDefault();
-  claims.push({
+  db.collection("claims").add({
     name: claimName.value,
     email: claimEmail.value,
     item: claimItem.value,
     reason: claimReason.value
+  }).then(()=>{ 
+    alert("Claim submitted!"); 
+    e.target.reset(); 
   });
-  save();
-  alert("Claim submitted.");
-  e.target.reset();
 }
 
-function checkPasscode() {
-  if (adminPass.value === ADMIN_PASSCODE) {
-    adminLogin.style.display = "none";
-    adminPanel.style.display = "block";
+// ===== ADMIN LOGIN =====
+function checkPasscode(){
+  if(adminPass.value===ADMIN_PASSCODE){
+    adminLogin.style.display="none";
+    adminPanel.style.display="block";
     renderAdmin();
   } else {
-    adminError.textContent = "Incorrect passcode.";
+    adminError.textContent="Incorrect passcode.";
   }
 }
 
-// SMART MATCH FUNCTION
-function renderAdmin() {
-  adminList.innerHTML = "";
-  claimList.innerHTML = "";
+// ===== ADMIN RENDER =====
+function renderAdmin(){
+  const adminListDiv = document.getElementById("adminList");
+  const claimListDiv = document.getElementById("claimList");
 
-  // Items
-  items.forEach((i, idx) => {
-    adminList.innerHTML += `
-    <div class="item">
-      <strong>${i.name}</strong>
-      <p>${i.desc}</p>
-      <p><b>Location:</b> ${i.location}</p>
-      <p><b>Date:</b> ${i.date}</p>
-      <img src="${i.image}">
-      <button onclick="removeItem(${idx})">Remove</button>
-    </div>`;
+  db.collection("items").onSnapshot(snapshot=>{
+    adminListDiv.innerHTML="";
+    snapshot.forEach(doc=>{
+      const i=doc.data();
+      adminListDiv.innerHTML += `
+        <div class="item">
+          <strong>${i.name}</strong>
+          <p>${i.desc}</p>
+          <p><b>Location:</b> ${i.location}</p>
+          <p><b>Date:</b> ${i.date}</p>
+          <img src="${i.image}">
+          <button onclick="removeItem('${doc.id}')">Remove</button>
+        </div>`;
+    });
   });
 
-  // Claims
-  claims.forEach((c, idx) => {
-    let matchedItem = null;
-    const claimWords = c.reason.toLowerCase().split(/\s+/);
-
-    for (const item of items) {
-      const itemText = (item.name + " " + item.desc + " " + item.location).toLowerCase();
-      if (claimWords.some(word => word.length > 2 && itemText.includes(word))) {
-        matchedItem = item;
-        break;
-      }
-    }
-
-    let itemHTML = matchedItem ? `
-      <p>${matchedItem.desc}</p>
-      <p><b>Location:</b> ${matchedItem.location}</p>
-      <p><b>Date:</b> ${matchedItem.date}</p>
-      <img src="${matchedItem.image}">` : `<p>Item info not found yet.</p>`;
-
-    claimList.innerHTML += `
-    <div class="item">
-      <b>${c.name}</b> (${c.email}) claims <b>${c.item}</b>
-      <p>${c.reason}</p>
-      ${itemHTML}
-      <button onclick="removeClaim(${idx})">Remove</button>
-    </div>`;
+  db.collection("claims").onSnapshot(snapshot=>{
+    claimListDiv.innerHTML="";
+    snapshot.forEach(doc=>{
+      const c=doc.data();
+      claimListDiv.innerHTML += `
+        <div class="item">
+          <b>${c.name}</b> (${c.email}) claims <b>${c.item}</b>
+          <p>${c.reason}</p>
+          <button onclick="removeClaim('${doc.id}')">Remove</button>
+        </div>`;
+    });
   });
 }
 
-function removeItem(i) {
-  items.splice(i,1);
-  save();
-  renderItems();
-  renderAdmin();
-}
+// ===== REMOVE ITEM / CLAIM =====
+function removeItem(id){ db.collection("items").doc(id).delete(); }
+function removeClaim(id){ db.collection("claims").doc(id).delete(); }
 
-function removeClaim(i) {
-  claims.splice(i,1);
-  save();
-  renderAdmin();
-}
-
+// ===== INIT =====
 renderItems();
+renderAdmin();
+</script>
+
+<!-- 🔹 Firebase Module Script -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.8.0/firebase-analytics.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyBIB2ukiUAaIDqjmMg-1mso-uSQMhMxJM8",
+    authDomain: "shs-lost-found.firebaseapp.com",
+    projectId: "shs-lost-found",
+    storageBucket: "shs-lost-found.firebasestorage.app",
+    messagingSenderId: "282063803975",
+    appId: "1:282063803975:web:92b9c4d4afab4fbd220362",
+    measurementId: "G-B0W382DP2X"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
 </script>
 
 </body>
 </html>
-
-
-
-
