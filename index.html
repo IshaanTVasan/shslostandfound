@@ -200,7 +200,7 @@ footer {
       <p>Browse all reported items currently in the system.</p>
     </div>
     <div class="card" onclick="showSection('claim')">
-      <img src="https://media.istockphoto.com/id/1130618698/vector/insurance-claim-form-with-a-check-mark-and-a-signature.jpg?s=612x612&w=0&k=20&c=9-p2ESsoR6_BNJ_LXdHhsMP-jegaEjcv7eJI-2m9inY="/>
+      <img src="https://img.icons8.com/color/96/000000/claim.png"/>
       <h3>Claim an Item</h3>
       <p>Submit a claim if you believe an item belongs to you.</p>
     </div>
@@ -217,7 +217,7 @@ footer {
 <h2>Report a Lost Item</h2>
 <form onsubmit="addItem(event)">
   <input id="itemName" placeholder="Item Name" required>
-  <textarea id="itemDesc" placeholder="Item Description" required></textarea>
+  <textarea id="itemDesc" placeholder="Item Description - Be Descriptive As Possible" required></textarea>
   <input id="itemLocation" placeholder="Room / Location Found" required>
   <input type="date" id="itemDate" required>
   <input type="file" id="itemPhoto" accept="image/*" required>
@@ -239,7 +239,7 @@ footer {
   <input id="claimName" placeholder="Your Name" required>
   <input id="claimEmail" placeholder="Your Email" required>
   <input id="claimItem" placeholder="Item Name" required>
-  <textarea id="claimReason" placeholder="Describe item to prove ownership" required></textarea>
+  <textarea id="claimReason" placeholder="Describe item - To prove ownership" required></textarea>
   <button>Submit Claim</button>
 </form>
 </section>
@@ -391,4 +391,3 @@ renderItems();
 
 </body>
 </html>
-
