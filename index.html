@@ -7,7 +7,6 @@
 
 <link href='https://fonts.googleapis.com/css?family=Macondo' rel='stylesheet'>
 
-CSS:
 <style>
 :root {
   --green: #06402B;
@@ -173,9 +172,6 @@ body::before {
 
 
 
-
-HTML:
-
 <body>
 
 <header>
@@ -191,7 +187,7 @@ HTML:
   <a onclick="showSection('admin')">Admin</a>
 </nav>
 
-/* -- HOME --*/
+<!-- HOME -->
 <section id="home" class="active">
   <h2>Welcome to SHS Lost & Found</h2>
   <p>Select an option below to get started.</p>
@@ -219,7 +215,7 @@ HTML:
   </div>
 </section>
 
-/* -- SUBMIT --*/
+<!-- SUBMIT -->
 <section id="submit">
 <h2>Report a Lost Item</h2>
 <form onsubmit="addItem(event)">
@@ -232,14 +228,14 @@ HTML:
 </form>
 </section>
 
-/* -- ITEM --*/
+<!-- ITEM -->
 <section id="items">
 <h2>Found Items</h2>
 <input placeholder="Search items..." onkeyup="searchItems(this.value)">
 <div id="itemList"></div>
 </section>
 
-/* -- CLAIM --*/
+<!-- CLAIM -->
 <section id="claim">
 <h2>Claim an Item</h2>
 <form onsubmit="submitClaim(event)">
@@ -251,7 +247,7 @@ HTML:
 </form>
 </section>
 
-/* -- ADMIN --*/
+<!-- ADMIN -->
 <section id="admin">
 <h2>Admin Login</h2>
 <div id="adminLogin">
@@ -271,7 +267,6 @@ HTML:
 Lost & Found Center – Website Coding & Development
 </footer>
 
-JavaScript:
 
 <script>
 const ADMIN_PASSCODE = "SHS2026";
@@ -464,6 +459,7 @@ renderItems();
 
 </body>
 </html>
+
 
 
 
