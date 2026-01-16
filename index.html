@@ -5,9 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>SHS Lost & Found</title>
 
-<!-- Google Fonts for modern look -->
-
 <link href='https://fonts.googleapis.com/css?family=Macondo' rel='stylesheet'>
+
+CSS:
 <style>
 :root {
   --green: #06402B;
@@ -16,7 +16,7 @@
   --card-bg: #ffffff;
 }
 
-/* Reset & body */
+/* -- BODY--*/
 * { box-sizing: border-box; margin:0; padding:0; }
 body {
   
@@ -28,7 +28,7 @@ body {
   color: #222;
 }
 
-/* Header */
+/* -- HEADER --*/
 header {
   background: var(--green);
   color: var(--gold);
@@ -39,7 +39,7 @@ header {
 header h1 { font-size: 2.2rem; margin-bottom: 5px; }
 header p { font-size: 1rem; opacity: 0.8; }
 
-/* Navigation */
+/* -- NAVIGATION --*/
 nav {
   background: var(--gold);
   padding: 12px 0;
@@ -54,7 +54,7 @@ nav a {
 }
 nav a:hover { color: #032011; }
 
-/* Sections */
+/* -- SECTIONS --*/
 section {
   display: none;
   padding: 40px 20px;
@@ -64,7 +64,7 @@ section {
 }
 section.active { display: block; }
 
-/* Cards on home */
+/* -- CARDS --*/
 .cards {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -93,14 +93,14 @@ section.active { display: block; }
   margin-bottom: 15px;
 }
 
-/* Section titles */
+/* -- SECTIONS TITLES --*/
 h2 {
   font-size: 1.8rem;
   color: var(--green);
   margin-bottom: 15px;
 }
 
-/* Forms */
+/* -- FORMS --*/
 form input, form textarea, form button {
   width: 100%;
   padding: 12px;
@@ -120,7 +120,7 @@ button {
 }
 button:hover { background: #032011; }
 
-/* Item Cards */
+/* -- ITEM --*/
 .item {
   background: var(--card-bg);
   padding: 15px;
@@ -136,7 +136,7 @@ button:hover { background: #032011; }
   justify-content: space-between;
 }
 
-/* Footer */
+/*-- FOOTER --*/
 footer {
   background: var(--green);
   color: var(--gold);
@@ -147,7 +147,7 @@ footer {
   opacity: 0.9;
 }
 
-/* Home Background Overlay Image */
+/* HOME BG IMAGE  */
 #home {
   position: relative;
   overflow: hidden;
@@ -171,6 +171,11 @@ body::before {
 </style>
 </head>
 
+
+
+
+HTML:
+
 <body>
 
 <header>
@@ -186,7 +191,7 @@ body::before {
   <a onclick="showSection('admin')">Admin</a>
 </nav>
 
-<!-- Home -->
+/* -- HOME --*/
 <section id="home" class="active">
   <h2>Welcome to SHS Lost & Found</h2>
   <p>Select an option below to get started.</p>
@@ -214,7 +219,7 @@ body::before {
   </div>
 </section>
 
-<!-- Submit -->
+/* -- SUBMIT --*/
 <section id="submit">
 <h2>Report a Lost Item</h2>
 <form onsubmit="addItem(event)">
@@ -227,14 +232,14 @@ body::before {
 </form>
 </section>
 
-<!-- Items -->
+/* -- ITEM --*/
 <section id="items">
 <h2>Found Items</h2>
 <input placeholder="Search items..." onkeyup="searchItems(this.value)">
 <div id="itemList"></div>
 </section>
 
-<!-- Claim -->
+/* -- CLAIM --*/
 <section id="claim">
 <h2>Claim an Item</h2>
 <form onsubmit="submitClaim(event)">
@@ -246,7 +251,7 @@ body::before {
 </form>
 </section>
 
-<!-- Admin -->
+/* -- ADMIN --*/
 <section id="admin">
 <h2>Admin Login</h2>
 <div id="adminLogin">
@@ -265,6 +270,8 @@ body::before {
 <footer>
 Lost & Found Center – Website Coding & Development
 </footer>
+
+JavaScript:
 
 <script>
 const ADMIN_PASSCODE = "SHS2026";
@@ -457,4 +464,6 @@ renderItems();
 
 </body>
 </html>
+
+
 
