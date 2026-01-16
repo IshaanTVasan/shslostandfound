@@ -281,6 +281,7 @@ function showSection(id){
   document.getElementById(id).classList.add("active");
 }
 
+/*-- ITEM SUBMISSION --*/
 function addItem(e){
   e.preventDefault();
   const reader = new FileReader();
@@ -301,6 +302,7 @@ function addItem(e){
   reader.readAsDataURL(itemPhoto.files[0]);
 }
 
+/*-- RENDER ITEMS --*/
 function renderItems(){
   const itemListDiv = document.getElementById("itemList");
   itemListDiv.innerHTML = "";
@@ -316,15 +318,21 @@ function renderItems(){
   });
 }
 
+/*-- SEARCH --*/
 function searchItems(q){
   const itemListDiv = document.getElementById("itemList");
   itemListDiv.innerHTML = "";
   items.filter(i => i.name.toLowerCase().includes(q.toLowerCase()))
     .forEach(i => {
-      itemListDiv.innerHTML += `<div class="item"><strong>${i.name}</strong><p>${i.desc}</p></div>`;
+      itemListDiv.innerHTML += `
+        <div class="item">
+          <strong>${i.name}</strong>
+          <p>${i.desc}</p>
+        </div>`;
     });
 }
 
+/*-- CLAIM SUBMISSION --*/
 function submitClaim(e){
   e.preventDefault();
   claims.push({
@@ -339,57 +347,114 @@ function submitClaim(e){
   showSection('home');
 }
 
+/*-- ADMIN LOGIN --*/
 function checkPasscode(){
   if(adminPass.value === ADMIN_PASSCODE){
     adminLogin.style.display="none";
     adminPanel.style.display="block";
     renderAdmin();
-  } else { adminError.textContent="Incorrect passcode."; }
+  } else {
+    adminError.textContent="Incorrect passcode.";
+  }
 }
 
+/*-- MATCHING HELPERS --*/
+function normalizeText(text){
+  return text
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g,"")
+    .split(/\s+/)
+    .filter(w =>
+      w.length > 2 &&
+      !["the","and","with","from","that","this","there","where",
+        "have","found","lost","item","left","school","room"].includes(w)
+    );
+}
+
+function similarityScore(claimText, itemText){
+  const claimWords = normalizeText(claimText);
+  const itemWords  = normalizeText(itemText);
+  if(claimWords.length === 0) return 0;
+
+  let matches = 0;
+  claimWords.forEach(w => {
+    if(itemWords.includes(w)) matches++;
+  });
+
+  return matches / claimWords.length;
+}
+
+/* -- ADMIN RENDER --*/
 function renderAdmin(){
   adminList.innerHTML = "";
   claimList.innerHTML = "";
 
   items.forEach((i,idx)=>{
-    adminList.innerHTML += `<div class="item">
-      <strong>${i.name}</strong>
-      <p>${i.desc}</p>
-      <p><b>Location:</b> ${i.location}</p>
-      <p><b>Date:</b> ${i.date}</p>
-      <img src="${i.image}">
-      <button onclick="removeItem(${idx})">Remove</button>
-    </div>`;
+    adminList.innerHTML += `
+      <div class="item">
+        <strong>${i.name}</strong>
+        <p>${i.desc}</p>
+        <p><b>Location:</b> ${i.location}</p>
+        <p><b>Date:</b> ${i.date}</p>
+        <img src="${i.image}">
+        <button onclick="removeItem(${idx})">Remove</button>
+      </div>`;
   });
 
   claims.forEach((c,idx)=>{
     let matchedItem = null;
-    const claimWords = c.reason.toLowerCase().split(/\s+/);
-    for(const item of items){
-      const itemText = (item.name + " " + item.desc + " " + item.location).toLowerCase();
-      if(claimWords.some(word=>word.length>2 && itemText.includes(word))){
-        matchedItem = item; break;
+    let bestScore = 0;
+
+    items.forEach(item=>{
+      const claimText = c.item + " " + c.reason;
+      const itemText  = item.name + " " + item.desc + " " + item.location;
+
+      const score = similarityScore(claimText, itemText);
+
+      if(score > bestScore && score >= 0.35){
+        bestScore = score;
+        matchedItem = item;
       }
-    }
+    });
+
     let itemHTML = matchedItem ? `
+      <p style="color:green;font-weight:bold;"> MATCH FOUND</p>
       <p>${matchedItem.desc}</p>
       <p><b>Location:</b> ${matchedItem.location}</p>
       <p><b>Date:</b> ${matchedItem.date}</p>
-      <img src="${matchedItem.image}">` : `<p>Item info not found yet.</p>`;
-    claimList.innerHTML += `<div class="item">
-      <b>${c.name}</b> (${c.email}) claims <b>${c.item}</b>
-      <p>${c.reason}</p>
-      ${itemHTML}
-      <button onclick="removeClaim(${idx})">Remove</button>
-    </div>`;
+      <img src="${matchedItem.image}">
+    ` : `
+      <p style="color:red;font-weight:bold;"> NO MATCH FOUND</p>
+    `;
+
+    claimList.innerHTML += `
+      <div class="item">
+        <b>${c.name}</b> (${c.email}) claims <b>${c.item}</b>
+        <p>${c.reason}</p>
+        ${itemHTML}
+        <button onclick="removeClaim(${idx})">Remove</button>
+      </div>`;
   });
 }
 
-function removeItem(i){ items.splice(i,1); save(); renderItems(); renderAdmin(); }
-function removeClaim(i){ claims.splice(i,1); save(); renderAdmin(); }
+/* -- REMOVE FUNCTIONS -- */
+function removeItem(i){
+  items.splice(i,1);
+  save();
+  renderItems();
+  renderAdmin();
+}
+
+function removeClaim(i){
+  claims.splice(i,1);
+  save();
+  renderAdmin();
+}
 
 renderItems();
 </script>
 
+
 </body>
 </html>
+
